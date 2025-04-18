@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader Dashboard - Agricultural Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* Reuse your existing dashboard styles */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
+        }
+
+        .filter-section {
+            background: #f5f5f5;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 5px;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .search-box input,
+        .search-box select {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .price-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Agricultural Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="#" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3>Trader Dashboard</h3>
+            <ul>
+                <li><a href="#" class="tab-link active" data-tab="products">Available Products</a></li>
+                <li><a href="#" class="tab-link" data-tab="markets">Markets</a></li>
+                <li><a href="#" class="tab-link" data-tab="trends">Price Trends</a></li>
+            </ul>
+        </div>
+
+        <div class="main-content">
+            <div id="products" class="tab-content active">
+                <h2>Available Products</h2>
+                
+                <div class="filter-section">
+                    <div class="search-box">
+                        <select id="category-filter">
+                            <option value="">All Categories</option>
+                            <option value="Vegetables">Vegetables</option>
+                            <option value="Fruits">Fruits</option>
+                            <option value="Grains">Grains</option>
+                            <option value="Dairy">Dairy</option>
+                        </select>
+                        
+                        <select id="location-filter">
+                            <option value="">All Locations</option>
+                            <!-- Locations will be loaded dynamically -->
+                        </select>
+                        
+                        <div class="price-range">
+                            <input type="number" id="min-price" placeholder="Min Price">
+                            <span>to</span>
+                            <input type="number" id="max-price" placeholder="Max Price">
+                        </div>
+                        
+                        <button id="search-btn">Search</button>
+                    </div>
+                </div>
+
+                <div class="product-grid" id="products-container">
+                    <!-- Products will be loaded dynamically -->
+                    <p>Loading products...</p>
+                </div>
+            </div>
+
+            <div id="markets" class="tab-content">
+                <h2>Market Information</h2>
+                <div id="markets-container">
+                    <!-- Market information will be loaded dynamically -->
+                </div>
+            </div>
+
+            <div id="trends" class="tab-content">
+                <h2>Price Trends</h2>
+                <div id="trends-container">
+                    <!-- Price trends will be loaded dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            if (!user.id || user.role !== 'trader') {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            // Load all available products
+            function loadProducts(filters = {}) {
+                let url = 'http://localhost:5000/api/products/search?';
+                
+                if (filters.category) url += `category=${filters.category}&`;
+                if (filters.location) url += `location=${filters.location}&`;
+                if (filters.minPrice) url += `min_price=${filters.minPrice}&`;
+                if (filters.maxPrice) url += `max_price=${filters.maxPrice}&`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        const container = document.getElementById('products-container');
+                        if (!data.success || !data.products.length) {
+                            container.innerHTML = '<p>No products found</p>';
+                            return;
+                        }
+
+                        container.innerHTML = '';
+                        data.products.forEach(product => {
+                            const card = document.createElement('div');
+                            card.className = 'product-card';
+                            card.innerHTML = `
+                                <h3>${product.name}</h3>
+                                <p><strong>Category:</strong> ${product.category}</p>
+                                <p><strong>Quantity:</strong> ${product.quantity} ${product.unit}</p>
+                                <p><strong>Price:</strong> KES ${product.price} per ${product.unit}</p>
+                                <p><strong>Location:</strong> ${product.location}</p>
+                                <p><strong>Farmer:</strong> ${product.farmer_name}</p>
+                                <button onclick="contactFarmer('${product.farmer_phone}', '${product.name}')">
+                                    Contact Farmer
+                                </button>
+                            `;
+                            container.appendChild(card);
+                        });
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('products-container').innerHTML = 
+                            '<p>Error loading products. Please try again later.</p>';
+                    });
+            }
+
+            // Load market locations for filter
+            function loadMarkets() {
+                fetch('http://localhost:5000/api/markets')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const locationFilter = document.getElementById('location-filter');
+                            data.markets.forEach(market => {
+                                const option = document.createElement('option');
+                                option.value = market.location;
+                                option.textContent = market.location;
+                                locationFilter.appendChild(option);
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
+
+            // Handle search/filter
+            document.getElementById('search-btn').addEventListener('click', function() {
+                const filters = {
+                    category: document.getElementById('category-filter').value,
+                    location: document.getElementById('location-filter').value,
+                    minPrice: document.getElementById('min-price').value,
+                    maxPrice: document.getElementById('max-price').value
+                };
+                loadProducts(filters);
+            });
+
+            // Handle tab navigation
+            document.querySelectorAll('.tab-link').forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Update active tab
+                    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show selected content
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.style.display = tab.id === tabId ? 'block' : 'none';
+                    });
+                });
+            });
+
+            // Contact farmer function
+            window.contactFarmer = function(phone, product) {
+                alert(`Contact farmer about ${product} at: ${phone}`);
+                // In a real application, you might want to implement a messaging system
+            };
+
+            // Handle logout
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+
+            // Load initial data
+            loadProducts();
+            loadMarkets();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Agricultural Management System</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #2c3e50;
+            --primary-dark: #1a252f;
+            --primary-light: #eef1f5;
+            --secondary-color: #3498db;
+            --secondary-dark: #2980b9;
+            --success-color: #2ecc71;
+            --success-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --danger-dark: #c0392b;
+            --warning-color: #f39c12;
+            --info-color: #3498db;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e9e9e9;
+            --bg-light: #f5f7fb;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        /* Header Styling */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        header h1 i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav ul li a i {
+            margin-right: 6px;
+        }
+        
+        nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: calc(100vh - 140px);
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar a:hover i, .sidebar a.active i {
+            color: var(--primary-color);
+        }
+        
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+        
+        .welcome-section {
+            margin-bottom: 2rem;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .welcome-section h2 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        .welcome-info {
+            flex: 1;
+        }
+        
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+            border-left: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .stat-card h3 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .stat-card h3 i {
+            margin-right: 8px;
+            font-size: 1.2rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .stat-card.users {
+            border-left-color: var(--secondary-color);
+        }
+        
+        .stat-card.users h3 i {
+            color: var(--secondary-color);
+        }
+        
+        .stat-card.products {
+            border-left-color: var(--success-color);
+        }
+        
+        .stat-card.products h3 i {
+            color: var(--success-color);
+        }
+        
+        .stat-card.trends {
+            border-left-color: var(--warning-color);
+        }
+        
+        .stat-card.trends h3 i {
+            color: var(--warning-color);
+        }
+        
+        /* Card Styling */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .card h3 {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Table Styling */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            margin-bottom: 1.5rem;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: white;
+        }
+        
+        th, td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        th {
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        tr:last-child td {
+            border-bottom: none;
+        }
+        
+        tr:hover td {
+            background-color: #f8f9fa;
+        }
+        
+        /* Form Styling */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+        
+        .form-group input, 
+        .form-group select, 
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .form-group input:focus, 
+        .form-group select:focus, 
+        .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(44, 62, 80, 0.1);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.25rem;
+        }
+        
+        /* Button Styling */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .danger-btn {
+            background-color: var(--danger-color);
+        }
+        
+        .danger-btn:hover {
+            background-color: var(--danger-dark);
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            height: 300px;
+            margin-top: 1.5rem;
+            position: relative;
+        }
+        
+        /* Badge Styling */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .badge-primary {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
+        
+        .badge-success {
+            background-color: #e6f7ef;
+            color: var(--success-color);
+        }
+        
+        .badge-danger {
+            background-color: #fae9e8;
+            color: var(--danger-color);
+        }
+        
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: white;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1rem 0;
+            }
+            
+            .sidebar ul {
+                display: flex;
+                overflow-x: auto;
+                padding: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+            }
+            
+            .sidebar ul::-webkit-scrollbar {
+                display: none; /* Chrome, Safari, Edge */
+            }
+            
+            .sidebar li {
+                margin-right: 1rem;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            
+            .sidebar a {
+                padding: 0.5rem 1rem;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
+            }
+            
+            .sidebar a:hover, .sidebar a.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary-color);
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .table-responsive {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-shield-alt"></i> Agricultural Management System</h1>
+        <nav>
+            <ul>
+                <li>
+                    <div class="user-avatar" id="user-initial">A</div>
+                </li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3><i class="fas fa-tachometer-alt"></i> Admin Dashboard</h3>
+            <ul>
+                <li><a href="#" class="tab-link active" data-tab="dashboard"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="#" class="tab-link" data-tab="users"><i class="fas fa-users"></i> User Management</a></li>
+                <li><a href="#" class="tab-link" data-tab="products"><i class="fas fa-box"></i> Product Management</a></li>
+                <li><a href="#" class="tab-link" data-tab="price-trends"><i class="fas fa-chart-line"></i> Price Trends</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="welcome-section">
+                    <div class="welcome-info">
+                        <h2>Welcome, <span id="admin-name">Admin</span></h2>
+                        <p>Here's an overview of the Agricultural Management System</p>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card users">
+                        <h3><i class="fas fa-users"></i> Total Users</h3>
+                        <div class="stat-value" id="user-count">0</div>
+                        <p><span id="farmer-count">0</span> Farmers, <span id="trader-count">0</span> Traders</p>
+                    </div>
+                    
+                    <div class="stat-card products">
+                        <h3><i class="fas fa-box"></i> Listed Products</h3>
+                        <div class="stat-value" id="product-count">0</div>
+                        <p>Across <span id="category-count">0</span> categories</p>
+                    </div>
+                    
+                    <div class="stat-card trends">
+                        <h3><i class="fas fa-chart-line"></i> Price Trends</h3>
+                        <div class="stat-value" id="trend-count">0</div>
+                        <p><span id="product-trend-count">0</span> tracked products</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-user-plus"></i> Latest Registered Users</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Registration Date</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-users">
+                                <!-- Users will be loaded here -->
+                                <tr>
+                                    <td colspan="5">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-box"></i> Recently Added Products</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Category</th>
+                                    <th>Farmer</th>
+                                    <th>Price</th>
+                                    <th>Date Added</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-products">
+                                <!-- Products will be loaded here -->
+                                <tr>
+                                    <td colspan="6">Loading products...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-chart-area"></i> System Activity</h3>
+                    <div class="chart-container">
+                        <canvas id="activity-chart"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- User Management Tab -->
+            <div id="users" class="tab-content">
+                <div class="welcome-section">
+                    <div class="welcome-info">
+                        <h2>User Management</h2>
+                        <p>View all system users</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-users"></i> User List</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Role</th>
+                                </tr>
+                            </thead>
+                            <tbody id="user-list">
+                                <!-- Users will be loaded here -->
+                                <tr>
+                                    <td colspan="5">Loading users...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Product Management Tab -->
+            <div id="products" class="tab-content">
+                <div class="welcome-section">
+                    <div class="welcome-info">
+                        <h2>Product Management</h2>
+                        <p>View and manage product listings</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-box"></i> Product List</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Category</th>
+                                    <th>Farmer</th>
+                                    <th>Price</th>
+                                    <th>Quantity</th>
+                                    <th>Location</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="product-list">
+                                <!-- Products will be loaded here -->
+                                <tr>
+                                    <td colspan="8">Loading products...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Price Trends Tab -->
+            <div id="price-trends" class="tab-content">
+                <div class="welcome-section">
+                    <div class="welcome-info">
+                        <h2>Price Trends Management</h2>
+                        <p>Manage and update product price trends</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-plus-circle"></i> Add New Price Trend</h3>
+                    <form id="add-trend-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="trend-product">Product</label>
+                                <select id="trend-product" required>
+                                    <option value="">Select Product</option>
+                                    <!-- Products will be loaded dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="trend-price">Price (KES)</label>
+                                <input type="number" id="trend-price" min="0" step="0.01" required placeholder="e.g. 50.00">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="trend-market">Market</label>
+                                <select id="trend-market" required>
+                                    <option value="">Select Market</option>
+                                    <!-- Markets will be loaded dynamically -->
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="trend-date">Date</label>
+                                <input type="date" id="trend-date" required>
+                            </div>
+                        </div>
+                        
+                        <button type="submit"><i class="fas fa-plus"></i> Add Price Trend</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3><i class="fas fa-chart-line"></i> Price Trends List</h3>
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Product</th>
+                                    <th>Price</th>
+                                    <th>Market</th>
+                                    <th>Date</th>
+                                    <th>Added By</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="trend-list">
+                                <!-- Price trends will be loaded here -->
+                                <tr>
+                                    <td colspan="7">Loading price trends...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Agricultural Management System. All rights reserved.</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get user info from localStorage
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            // Redirect if not logged in as admin
+            if (!user.id || user.role !== 'admin') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Display admin name and initial
+            document.getElementById('admin-name').textContent = user.username || 'Admin';
+            if (user.username) {
+                document.getElementById('user-initial').textContent = user.username.charAt(0).toUpperCase();
+            }
+            
+            // Tab navigation
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-link').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Load data for the selected tab
+                    if (tabId === 'users') {
+                        loadUsers();
+                    } else if (tabId === 'products') {
+                        loadProducts();
+                    } else if (tabId === 'price-trends') {
+                        loadPriceTrends();
+                        loadProductsAndMarkets();
+                    }
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Create activity chart
+            function createActivityChart() {
+                const ctx = document.getElementById('activity-chart').getContext('2d');
+                
+                // Sample data - in a real app, this would come from the API
+                const activityChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                        datasets: [
+                            {
+                                label: 'Users',
+                                data: [12, 19, 23, 27, 32, 35],
+                                borderColor: '#3498db',
+                                backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                tension: 0.3,
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'Products',
+                                data: [8, 15, 20, 28, 35, 40],
+                                borderColor: '#2ecc71',
+                                backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                                tension: 0.3,
+                                borderWidth: 2
+                            },
+                            {
+                                label: 'Transactions',
+                                data: [5, 10, 15, 22, 30, 38],
+                                borderColor: '#e74c3c',
+                                backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                                tension: 0.3,
+                                borderWidth: 2
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            title: {
+                                display: true,
+                                text: 'Monthly Activity Overview',
+                                font: {
+                                    size: 14,
+                                    weight: 'normal'
+                                }
+                            },
+                            legend: {
+                                position: 'top'
+                            }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: {
+                                    color: 'rgba(0, 0, 0, 0.05)'
+                                }
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+            
+            // Load dashboard stats
+            function loadDashboardStats() {
+                fetch('/api/admin/stats')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            // Update stats
+                            document.getElementById('user-count').textContent = data.stats.users.total;
+                            document.getElementById('farmer-count').textContent = data.stats.users.farmers;
+                            document.getElementById('trader-count').textContent = data.stats.users.traders;
+                            
+                            document.getElementById('product-count').textContent = data.stats.products.total;
+                            document.getElementById('category-count').textContent = data.stats.products.categories;
+                            
+                            document.getElementById('trend-count').textContent = data.stats.price_trends.total;
+                            document.getElementById('product-trend-count').textContent = data.stats.price_trends.tracked_products;
+                            
+                            // Update recent users
+                            const recentUsersTable = document.getElementById('recent-users');
+                            recentUsersTable.innerHTML = '';
+                            
+                            data.recent_users.forEach(user => {
+                                const row = document.createElement('tr');
+                                const date = new Date(user.created_at).toLocaleDateString();
+                                
+                                row.innerHTML = `
+                                    <td>${user.id}</td>
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.role}</td>
+                                    <td>${date}</td>
+                                `;
+                                
+                                recentUsersTable.appendChild(row);
+                            });
+                            
+                            // Update recent products
+                            const recentProductsTable = document.getElementById('recent-products');
+                            recentProductsTable.innerHTML = '';
+                            
+                            data.recent_products.forEach(product => {
+                                const row = document.createElement('tr');
+                                const date = new Date(product.created_at).toLocaleDateString();
+                                
+                                row.innerHTML = `
+                                    <td>${product.id}</td>
+                                    <td>${product.name}</td>
+                                    <td>${product.category}</td>
+                                    <td>${product.farmer_name}</td>
+                                    <td>${product.price} KES</td>
+                                    <td>${date}</td>
+                                `;
+                                
+                                recentProductsTable.appendChild(row);
+                            });
+                        } else {
+                            console.error('Failed to load stats:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching stats:', error);
+                    });
+            }
+            
+            // Load users
+            function loadUsers() {
+                fetch(`/api/admin/users?admin_id=${user.id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const userList = document.getElementById('user-list');
+                            userList.innerHTML = '';
+                            
+                            data.users.forEach(user => {
+                                const row = document.createElement('tr');
+                                
+                                row.innerHTML = `
+                                    <td>${user.id}</td>
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.phone || '-'}</td>
+                                    <td>${user.role}</td>
+                                `;
+                                
+                                userList.appendChild(row);
+                            });
+                        } else {
+                            console.error('Failed to load users:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching users:', error);
+                    });
+            }
+            
+            // Load products
+            function loadProducts() {
+                fetch(`/api/admin/products?admin_id=${user.id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const productList = document.getElementById('product-list');
+                            productList.innerHTML = '';
+                            
+                            data.products.forEach(product => {
+                                const row = document.createElement('tr');
+                                
+                                row.innerHTML = `
+                                    <td>${product.id}</td>
+                                    <td>${product.name}</td>
+                                    <td>${product.category}</td>
+                                    <td>${product.farmer_name}</td>
+                                    <td>${product.price} KES</td>
+                                    <td>${product.quantity} ${product.unit}</td>
+                                    <td>${product.location}</td>
+                                    <td>
+                                        <button class="danger-btn" onclick="deleteProduct(${product.id})">Delete</button>
+                                    </td>
+                                `;
+                                
+                                productList.appendChild(row);
+                            });
+                        } else {
+                            console.error('Failed to load products:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching products:', error);
+                    });
+            }
+            
+            // Load price trends
+            function loadPriceTrends() {
+                fetch(`/api/admin/price-trends?admin_id=${user.id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const trendList = document.getElementById('trend-list');
+                            trendList.innerHTML = '';
+                            
+                            data.trends.forEach(trend => {
+                                const row = document.createElement('tr');
+                                
+                                row.innerHTML = `
+                                    <td>${trend.id}</td>
+                                    <td>${trend.product_name}</td>
+                                    <td>${trend.price} KES</td>
+                                    <td>${trend.market || '-'}</td>
+                                    <td>${trend.date}</td>
+                                    <td>${trend.added_by_name || 'System'}</td>
+                                    <td>
+                                        <button class="danger-btn" onclick="deletePriceTrend(${trend.id})">Delete</button>
+                                    </td>
+                                `;
+                                
+                                trendList.appendChild(row);
+                            });
+                        } else {
+                            console.error('Failed to load price trends:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching price trends:', error);
+                    });
+            }
+            
+            // Load products and markets for price trend form
+            function loadProductsAndMarkets() {
+                fetch(`/api/admin/products/names?admin_id=${user.id}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            const productSelect = document.getElementById('trend-product');
+                            const marketSelect = document.getElementById('trend-market');
+                            
+                            // Clear previous options
+                            productSelect.innerHTML = '<option value="">Select Product</option>';
+                            marketSelect.innerHTML = '<option value="">Select Market</option>';
+                            
+                            // Add product options
+                            data.products.forEach(product => {
+                                const option = document.createElement('option');
+                                option.value = product;
+                                option.textContent = product;
+                                productSelect.appendChild(option);
+                            });
+                            
+                            // Add market options
+                            data.markets.forEach(market => {
+                                const option = document.createElement('option');
+                                option.value = market;
+                                option.textContent = market;
+                                marketSelect.appendChild(option);
+                            });
+                        } else {
+                            console.error('Failed to load products and markets:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error fetching products and markets:', error);
+                    });
+            }
+            
+            // Delete product function
+            window.deleteProduct = function(productId) {
+                if (confirm('Are you sure you want to delete this product?')) {
+                    fetch(`/api/admin/products/${productId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            admin_id: user.id
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Product deleted successfully!');
+                            loadProducts();
+                            loadDashboardStats();
+                        } else {
+                            alert('Failed to delete product: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting the product.');
+                    });
+                }
+            };
+            
+            // Delete price trend function
+            window.deletePriceTrend = function(trendId) {
+                if (confirm('Are you sure you want to delete this price trend?')) {
+                    fetch(`/api/admin/price-trends/${trendId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            admin_id: user.id
+                        })
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Price trend deleted successfully!');
+                            loadPriceTrends();
+                            loadDashboardStats();
+                        } else {
+                            alert('Failed to delete price trend: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while deleting the price trend.');
+                    });
+                }
+            };
+            
+            // Add price trend form submission
+            document.getElementById('add-trend-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const formData = {
+                    product_name: document.getElementById('trend-product').value,
+                    price: document.getElementById('trend-price').value,
+                    market: document.getElementById('trend-market').value,
+                    date: document.getElementById('trend-date').value,
+                    added_by: user.id
+                };
+                
+                fetch('/api/price-trends', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(formData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Price trend added successfully!');
+                        document.getElementById('add-trend-form').reset();
+                        loadPriceTrends();
+                        loadDashboardStats();
+                    } else {
+                        alert('Failed to add price trend: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding the price trend.');
+                });
+            });
+            
+            // Set today's date as default for the trend date input
+            document.getElementById('trend-date').valueAsDate = new Date();
+            
+            // Create activity chart
+            createActivityChart();
+            
+            // Initial load
+            loadDashboardStats();
+        });
+    </script>
+</body>
+</html>

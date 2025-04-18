@@ -1,0 +1,1287 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trader Dashboard - Agricultural Management System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --primary-dark: #2980b9;
+            --primary-light: #eef8ff;
+            --secondary-color: #2ecc71;
+            --secondary-dark: #27ae60;
+            --danger-color: #e74c3c;
+            --danger-dark: #c0392b;
+            --warning-color: #f39c12;
+            --text-dark: #2c3e50;
+            --text-muted: #7f8c8d;
+            --border-color: #e9e9e9;
+            --bg-light: #f5f7fb;
+            --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --hover-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            --transition: all 0.3s ease;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            line-height: 1.6;
+        }
+        
+        /* Header Styling */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        header h1 {
+            font-weight: 600;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        header h1 i {
+            margin-right: 10px;
+            font-size: 1.8rem;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            align-items: center;
+        }
+        
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+        }
+        
+        nav ul li a i {
+            margin-right: 6px;
+        }
+        
+        nav ul li a:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-avatar {
+            width: 2.5rem;
+            height: 2.5rem;
+            border-radius: 50%;
+            background-color: rgba(255, 255, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+        }
+        
+        /* Dashboard Layout */
+        .dashboard {
+            display: flex;
+            min-height: calc(100vh - 140px);
+        }
+        
+        /* Sidebar Styling */
+        .sidebar {
+            width: 250px;
+            background-color: white;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+            padding: 1.5rem 0;
+            position: sticky;
+            top: 70px;
+            height: calc(100vh - 70px);
+            transition: var(--transition);
+            overflow-y: auto;
+        }
+        
+        .sidebar h3 {
+            padding: 0 1.5rem;
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .sidebar h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+            font-weight: 500;
+            border-left: 4px solid transparent;
+        }
+        
+        .sidebar a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+        }
+        
+        .sidebar a:hover, .sidebar a.active {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-left-color: var(--primary-color);
+        }
+        
+        .sidebar a:hover i, .sidebar a.active i {
+            color: var(--primary-color);
+        }
+        
+        /* Main Content Styling */
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+            overflow-x: hidden;
+        }
+        
+        /* Tab Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .welcome-section {
+            margin-bottom: 2rem;
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .welcome-section h2 {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+        }
+        
+        /* Card Styling */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+            transition: var(--transition);
+        }
+        
+        .card:hover {
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .card h3 {
+            font-weight: 600;
+            font-size: 1.2rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-dark);
+            display: flex;
+            align-items: center;
+        }
+        
+        .card h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.25rem;
+        }
+        
+        .card-header h3 {
+            margin-bottom: 0;
+        }
+        
+        /* Product Grid */
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        
+        .product-card {
+            background-color: white;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hover-shadow);
+        }
+        
+        .product-card h3 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .product-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+        
+        .product-info i {
+            width: 20px;
+            margin-right: 8px;
+            color: var(--primary-color);
+        }
+        
+        .product-price {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin: 1rem 0;
+        }
+        
+        .product-actions {
+            margin-top: auto;
+        }
+        
+        .category-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        /* Search Styling */
+        .search-container {
+            position: relative;
+            margin-bottom: 1.5rem;
+        }
+        
+        .search-container input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+        
+        .search-container i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+        
+        .search-container input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        /* Search Filters */
+        .search-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            background-color: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .filter label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+            font-size: 0.9rem;
+        }
+        
+        .filter select, .filter input {
+            width: 100%;
+            padding: 0.6rem;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 0.95rem;
+            background-color: white;
+        }
+        
+        .filter select:focus, .filter input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+        }
+        
+        .price-range {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .price-range input {
+            width: 100%;
+        }
+        
+        .filter-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        /* Button Styling */
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        button i {
+            margin-right: 8px;
+        }
+        
+        button:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+        
+        .secondary-btn {
+            background-color: #95a5a6;
+        }
+        
+        .secondary-btn:hover {
+            background-color: #7f8c8d;
+        }
+        
+        /* Table Styling */
+        .price-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+            background-color: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+        
+        .price-list th, 
+        .price-list td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .price-list th {
+            background-color: #f8f9fa;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .price-list tr:hover {
+            background-color: #f8f9fa;
+        }
+        
+        /* Chart Container */
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin-top: 1.5rem;
+        }
+        
+        /* Result Count */
+        .result-count {
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            background-color: white;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+        }
+        
+        /* Footer Styling */
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: white;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+                padding: 1rem 0;
+                box-shadow: none;
+                border-bottom: 1px solid var(--border-color);
+            }
+            
+            .sidebar ul {
+                display: flex;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+                padding: 0.5rem;
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none; /* Firefox */
+            }
+            
+            .sidebar ul::-webkit-scrollbar {
+                display: none; /* Chrome, Safari, Edge */
+            }
+            
+            .sidebar li {
+                margin-right: 1rem;
+                margin-bottom: 0;
+                flex-shrink: 0;
+            }
+            
+            .sidebar a {
+                padding: 0.5rem 1rem;
+                border-left: none;
+                border-bottom: 3px solid transparent;
+                white-space: nowrap;
+            }
+            
+            .sidebar a:hover, .sidebar a.active {
+                border-left-color: transparent;
+                border-bottom-color: var(--primary-color);
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .search-filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header {
+                padding: 1rem;
+            }
+            
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .filter-actions {
+                flex-direction: column;
+            }
+            
+            .filter-actions button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1><i class="fas fa-store"></i> Agricultural Management System</h1>
+        <nav>
+            <ul>
+                <li>
+                    <div class="user-avatar" id="user-initial">T</div>
+                </li>
+                <li><a href="#" id="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3><i class="fas fa-chart-bar"></i> Trader Dashboard</h3>
+            <ul>
+                <li><a href="#" class="tab-link active" data-tab="browse"><i class="fas fa-shopping-basket"></i> Browse Products</a></li>
+                <li><a href="#" class="tab-link" data-tab="prices"><i class="fas fa-chart-line"></i> Price Trends</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <div id="browse" class="tab-content active">
+                <div class="welcome-section">
+                    <h2>Welcome, <span id="trader-name">Trader</span></h2>
+                    <p>Browse available products from farmers across different markets.</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-search"></i> Search Products</h3>
+                    </div>
+                    
+                    <div class="search-container">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="search-term" placeholder="Search products by name, category, or location...">
+                    </div>
+                    
+                    <div class="search-filters">
+                        <div class="filter">
+                            <label for="category-filter">Category:</label>
+                            <select id="category-filter">
+                                <option value="All">All Categories</option>
+                                <option value="Vegetables">Vegetables</option>
+                                <option value="Fruits">Fruits</option>
+                                <option value="Grains">Grains</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter">
+                            <label for="location-filter">Location:</label>
+                            <select id="location-filter">
+                                <option value="All">All Locations</option>
+                                <!-- Locations will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="filter">
+                            <label for="price-range">Price Range (KES):</label>
+                            <div class="price-range">
+                                <input type="number" id="min-price" placeholder="Min">
+                                <span>to</span>
+                                <input type="number" id="max-price" placeholder="Max">
+                            </div>
+                        </div>
+                        
+                        <div class="filter">
+                            <label for="sort-by">Sort By:</label>
+                            <select id="sort-by">
+                                <option value="price_asc">Price: Low to High</option>
+                                <option value="price_desc">Price: High to Low</option>
+                                <option value="newest">Newest First</option>
+                                <option value="quantity_desc">Available Quantity</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-actions">
+                        <button id="search-btn"><i class="fas fa-search"></i> Search</button>
+                        <button id="reset-btn" class="secondary-btn"><i class="fas fa-redo"></i> Reset Filters</button>
+                    </div>
+                </div>
+                
+                <div class="result-count">
+                    <i class="fas fa-box"></i> Showing <span id="product-count">0</span> products
+                </div>
+                
+                <div class="product-grid" id="products-container">
+                    <!-- Products will be loaded here -->
+                    <div class="loading-indicator">
+                        <i class="fas fa-spinner fa-spin"></i> Loading products...
+                    </div>
+                </div>
+            </div>
+            
+            <div id="prices" class="tab-content">
+                <div class="welcome-section">
+                    <h2>Price Trends</h2>
+                    <p>Track market prices for agricultural products</p>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-chart-line"></i> Market Price Analysis</h3>
+                    </div>
+                    
+                    <div class="search-filters" style="background-color: white; padding: 1rem;">
+                        <div class="filter">
+                            <label for="product-select">Select Product</label>
+                            <select id="product-select">
+                                <!-- Products will be loaded dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="filter">
+                            <label for="time-period">Time Period</label>
+                            <select id="time-period">
+                                <option value="7">Last 7 days</option>
+                                <option value="30" selected>Last 30 days</option>
+                                <option value="90">Last 3 months</option>
+                                <option value="180">Last 6 months</option>
+                            </select>
+                        </div>
+                        
+                        <div class="filter">
+                            <label>&nbsp;</label>
+                            <button id="load-trends"><i class="fas fa-sync-alt"></i> Load Trends</button>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="trend-chart"></canvas>
+                    </div>
+                    
+                    <div style="margin-top: 1rem; text-align: center; color: var(--text-muted); font-size: 0.9rem;">
+                        <i class="fas fa-info-circle"></i> Hover over the chart to see detailed price information
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-table"></i> Price Data</h3>
+                    </div>
+                    
+                    <div style="overflow-x: auto;">
+                        <table class="price-list">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Market</th>
+                                    <th>Price (KES)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="price-data">
+                                <tr>
+                                    <td colspan="3">Select a product to view price data</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Agricultural Management System</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Global chart variable
+            let priceChart = null;
+            
+            // Get user info from localStorage
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            
+            // Redirect if not logged in as trader
+            if (!user.id || user.role !== 'trader') {
+                window.location.href = '/login';
+                return;
+            }
+            
+            // Display user name and initial
+            document.getElementById('trader-name').textContent = user.username || 'Trader';
+            if (user.username) {
+                document.getElementById('user-initial').textContent = user.username.charAt(0).toUpperCase();
+            }
+            
+            // Tab navigation
+            document.querySelectorAll('.tab-link').forEach(tab => {
+                tab.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Remove active class from all tabs
+                    document.querySelectorAll('.tab-link').forEach(t => {
+                        t.classList.remove('active');
+                    });
+                    
+                    // Add active class to clicked tab
+                    this.classList.add('active');
+                    
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    
+                    // Show selected tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                    
+                    // Load price trends if switching to prices tab
+                    if (tabId === 'prices') {
+                        loadPriceTrends();
+                    }
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                window.location.href = '/login';
+            });
+            
+            // Load all products with advanced search
+            function loadProducts() {
+                // Show loading indicator
+                document.getElementById('products-container').innerHTML = '<div class="loading-indicator" style="text-align: center; padding: 2rem;"><i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--primary-color);"></i><p style="margin-top: 1rem;">Loading products...</p></div>';
+                
+                // Get filter values
+                const category = document.getElementById('category-filter').value;
+                const location = document.getElementById('location-filter').value;
+                const minPrice = document.getElementById('min-price').value;
+                const maxPrice = document.getElementById('max-price').value;
+                const searchTerm = document.getElementById('search-term').value;
+                const sortBy = document.getElementById('sort-by').value;
+                
+                // Build query string
+                let queryString = '/api/products/advanced-search?';
+                if (category && category !== 'All') queryString += `category=${category}&`;
+                if (location && location !== 'All') queryString += `location=${location}&`;
+                if (minPrice) queryString += `min_price=${minPrice}&`;
+                if (maxPrice) queryString += `max_price=${maxPrice}&`;
+                if (searchTerm) queryString += `search_term=${searchTerm}&`;
+                queryString += `sort_by=${sortBy}`;
+                
+                fetch(queryString)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        const container = document.getElementById('products-container');
+                        
+                        if (data.success) {
+                            // Update locations filter options
+                            const locationFilter = document.getElementById('location-filter');
+                            
+                            // Save the current selection
+                            const currentSelection = locationFilter.value;
+                            
+                            // Clear existing options except the first "All Locations" option
+                            while (locationFilter.options.length > 1) {
+                                locationFilter.remove(1);
+                            }
+                            
+                            // Add new location options
+                            if (data.locations) {
+                                data.locations.forEach(loc => {
+                                    if (loc) {  // Only add non-empty locations
+                                        const option = document.createElement('option');
+                                        option.value = loc;
+                                        option.textContent = loc;
+                                        locationFilter.appendChild(option);
+                                    }
+                                });
+                                
+                                // Restore previous selection if it exists in the new options
+                                if (currentSelection && currentSelection !== 'All') {
+                                    for (let i = 0; i < locationFilter.options.length; i++) {
+                                        if (locationFilter.options[i].value === currentSelection) {
+                                            locationFilter.selectedIndex = i;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            // Update product display
+                            if (data.products.length === 0) {
+                                container.innerHTML = `
+                                    <div style="text-align: center; padding: 2rem;">
+                                        <i class="fas fa-box-open" style="font-size: 3rem; color: #ddd; margin-bottom: 1rem;"></i>
+                                        <p>No products found matching your criteria.</p>
+                                        <p style="color: var(--text-muted); margin-top: 0.5rem;">Try adjusting your filters or search terms.</p>
+                                    </div>
+                                `;
+                                document.getElementById('product-count').textContent = '0';
+                                return;
+                            }
+                            
+                            // Update product count
+                            document.getElementById('product-count').textContent = data.products.length;
+                            
+                            // Build product grid
+                            let html = '';
+                            data.products.forEach(product => {
+                                html += `
+                                    <div class="product-card">
+                                        <span class="category-tag">${product.category}</span>
+                                        <h3>${product.name}</h3>
+                                        <div class="product-info"><i class="fas fa-layer-group"></i> <strong>Quantity:</strong> ${product.quantity} ${product.unit}</div>
+                                        <div class="product-info"><i class="fas fa-map-marker-alt"></i> <strong>Location:</strong> ${product.location}</div>
+                                        <div class="product-price">${product.price} KES <span style="font-size: 0.9rem; font-weight: normal;">per ${product.unit}</span></div>
+                                        <div class="product-info"><i class="fas fa-user"></i> <strong>Farmer:</strong> ${product.farmer_name}</div>
+                                        <div class="product-actions">
+                                            <button onclick="contactFarmer('${product.farmer_phone}', '${product.name}')">
+                                                <i class="fas fa-phone"></i> Contact Farmer
+                                            </button>
+                                        </div>
+                                    </div>
+                                `;
+                            });
+                            
+                            container.innerHTML = html;
+                        } else {
+                            container.innerHTML = `
+                                <div style="text-align: center; padding: 2rem;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 1rem;"></i>
+                                    <p>Error loading products: ${data.message || 'Unknown error'}</p>
+                                    <button onclick="loadProducts()" style="margin-top: 1rem;">
+                                        <i class="fas fa-sync-alt"></i> Try Again
+                                    </button>
+                                </div>
+                            `;
+                            document.getElementById('product-count').textContent = '0';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('products-container').innerHTML = `
+                            <div style="text-align: center; padding: 2rem;">
+                                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; color: #e74c3c; margin-bottom: 1rem;"></i>
+                                <p>Error loading products. Please try again later.</p>
+                                <p style="color: var(--text-muted); margin-top: 0.5rem;">${error.message}</p>
+                                <button onclick="loadProducts()" style="margin-top: 1rem;">
+                                    <i class="fas fa-sync-alt"></i> Try Again
+                                </button>
+                            </div>
+                        `;
+                        document.getElementById('product-count').textContent = '0';
+                    });
+            }
+            
+            // Search button functionality
+            document.getElementById('search-btn').addEventListener('click', function() {
+                loadProducts();
+            });
+            
+            // Reset filters
+            document.getElementById('reset-btn').addEventListener('click', function() {
+                document.getElementById('category-filter').value = 'All';
+                document.getElementById('location-filter').value = 'All';
+                document.getElementById('min-price').value = '';
+                document.getElementById('max-price').value = '';
+                document.getElementById('search-term').value = '';
+                document.getElementById('sort-by').value = 'price_asc';
+                
+                loadProducts();
+            });
+            
+            // Contact farmer function
+            window.contactFarmer = function(phone, product) {
+                alert(`Contact farmer about ${product} at: ${phone}`);
+                // In a real application, you might want to implement a messaging system
+            };
+            
+            // Search on Enter key in search field
+            document.getElementById('search-term').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    loadProducts();
+                }
+            });
+            
+            // Load price trends
+            function loadPriceTrends() {
+                const product = document.getElementById('product-select').value || '';
+                const days = document.getElementById('time-period').value;
+                
+                // Show loading indicator in table
+                document.getElementById('price-data').innerHTML = '<tr><td colspan="3"><i class="fas fa-spinner fa-spin"></i> Loading price data...</td></tr>';
+                
+                // Show loading on button
+                const loadBtn = document.getElementById('load-trends');
+                loadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+                loadBtn.disabled = true;
+                
+                // Clear any existing chart
+                if (priceChart) {
+                    priceChart.destroy();
+                    priceChart = null;
+                }
+                
+                // Show loading in chart
+                const ctx = document.getElementById('trend-chart').getContext('2d');
+                ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                ctx.font = '14px Poppins';
+                ctx.textAlign = 'center';
+                ctx.fillStyle = '#7f8c8d';
+                ctx.fillText('Loading chart data...', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                
+                fetch(`/api/price-trends?product=${encodeURIComponent(product)}&days=${encodeURIComponent(days)}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Reset button state
+                        loadBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Load Trends';
+                        loadBtn.disabled = false;
+                        
+                        if (data.success) {
+                            // Update product dropdown
+                            const productSelect = document.getElementById('product-select');
+                            
+                            // Save current selection
+                            const currentSelection = productSelect.value;
+                            
+                            // Clear existing options
+                            productSelect.innerHTML = '';
+                            
+                            // Add options from data
+                            if (data.products && data.products.length > 0) {
+                                data.products.forEach(prod => {
+                                    const option = document.createElement('option');
+                                    option.value = prod;
+                                    option.textContent = prod;
+                                    productSelect.appendChild(option);
+                                });
+                                
+                                // Restore selection if it exists, otherwise use the one from API
+                                if (currentSelection && data.products.includes(currentSelection)) {
+                                    productSelect.value = currentSelection;
+                                } else if (data.selected_product) {
+                                    productSelect.value = data.selected_product;
+                                }
+                            } else {
+                                // If no products are available
+                                const option = document.createElement('option');
+                                option.value = '';
+                                option.textContent = 'No products available';
+                                productSelect.appendChild(option);
+                            }
+                            
+                            // Update price data table
+                            const priceData = document.getElementById('price-data');
+                            if (!data.trends || data.trends.length === 0) {
+                                priceData.innerHTML = '<tr><td colspan="3">No price data available for this product</td></tr>';
+                            } else {
+                                let tableHtml = '';
+                                
+                                data.trends.forEach(trend => {
+                                    tableHtml += `
+                                        <tr>
+                                            <td>${trend.date}</td>
+                                            <td>${trend.market || 'Unknown'}</td>
+                                            <td>${trend.price} KES</td>
+                                        </tr>
+                                    `;
+                                });
+                                
+                                priceData.innerHTML = tableHtml;
+                            }
+                            
+                            // Update chart
+                            renderPriceChart(data.trends);
+                        } else {
+                            // Show clear error message in table
+                            document.getElementById('price-data').innerHTML = 
+                                `<tr><td colspan="3">Error: ${data.message || 'Unable to load price data'}</td></tr>`;
+                            
+                            // Show error in chart
+                            if (priceChart) {
+                                priceChart.destroy();
+                                priceChart = null;
+                            }
+                            
+                            ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                            ctx.font = '14px Poppins';
+                            ctx.textAlign = 'center';
+                            ctx.fillStyle = '#e74c3c';
+                            ctx.fillText('Unable to load chart data', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        
+                        // Reset button state
+                        loadBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Load Trends';
+                        loadBtn.disabled = false;
+                        
+                        // Show user-friendly error message
+                        document.getElementById('price-data').innerHTML = 
+                            '<tr><td colspan="3">An error occurred while loading price trends. Please try again later.</td></tr>';
+                        
+                        // Show error in chart
+                        if (priceChart) {
+                            priceChart.destroy();
+                            priceChart = null;
+                        }
+                        
+                        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                        ctx.font = '14px Poppins';
+                        ctx.textAlign = 'center';
+                        ctx.fillStyle = '#e74c3c';
+                        ctx.fillText('Error loading chart data', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                        ctx.font = '12px Poppins';
+                        ctx.fillText('Please try again later', ctx.canvas.width / 2, ctx.canvas.height / 2 + 20);
+                    });
+            }
+            
+            // Render price chart
+            function renderPriceChart(trendsData) {
+                const ctx = document.getElementById('trend-chart').getContext('2d');
+                
+                // Handle empty data
+                if (!trendsData || trendsData.length === 0) {
+                    if (priceChart) {
+                        priceChart.destroy();
+                        priceChart = null;
+                    }
+                    
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.font = '14px Poppins';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#7f8c8d';
+                    ctx.fillText('No data available for the selected product', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                    return;
+                }
+                
+                try {
+                    // Process data for chart by market
+                    const markets = {};
+                    
+                    trendsData.forEach(trend => {
+                        const market = trend.market || 'Unknown';
+                        
+                        if (!markets[market]) {
+                            markets[market] = {
+                                dates: [],
+                                prices: []
+                            };
+                        }
+                        
+                        markets[market].dates.push(trend.date);
+                        markets[market].prices.push(trend.price);
+                    });
+                    
+                    // Prepare datasets for each market
+                    const datasets = [];
+                    const colors = ['#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6', '#1abc9c'];
+                    
+                    let colorIndex = 0;
+                    for (const market in markets) {
+                        const color = colors[colorIndex % colors.length];
+                        const r = parseInt(color.slice(1, 3), 16);
+                        const g = parseInt(color.slice(3, 5), 16);
+                        const b = parseInt(color.slice(5, 7), 16);
+                        
+                        datasets.push({
+                            label: market,
+                            data: markets[market].prices,
+                            borderColor: color,
+                            backgroundColor: `rgba(${r}, ${g}, ${b}, 0.1)`,
+                            tension: 0.3,
+                            borderWidth: 2,
+                            pointRadius: 3,
+                            pointHoverRadius: 6
+                        });
+                        colorIndex++;
+                    }
+                    
+                    // If there's an existing chart, destroy it
+                    if (priceChart) {
+                        priceChart.destroy();
+                    }
+                    
+                    // Create new chart
+                    priceChart = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: datasets.length > 0 ? markets[Object.keys(markets)[0]].dates : [],
+                            datasets: datasets
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Price Trends Over Time',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    },
+                                    padding: {
+                                        top: 10,
+                                        bottom: 20
+                                    }
+                                },
+                                tooltip: {
+                                    mode: 'index',
+                                    intersect: false,
+                                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                                    titleColor: '#2c3e50',
+                                    bodyColor: '#2c3e50',
+                                    borderColor: '#ddd',
+                                    borderWidth: 1,
+                                    padding: 10,
+                                    cornerRadius: 8,
+                                    callbacks: {
+                                        label: function(context) {
+                                            return `${context.dataset.label}: ${context.raw} KES`;
+                                        }
+                                    }
+                                },
+                                legend: {
+                                    position: 'top',
+                                    labels: {
+                                        padding: 15,
+                                        usePointStyle: true
+                                    }
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: false,
+                                    title: {
+                                        display: true,
+                                        text: 'Price (KES)',
+                                        font: {
+                                            size: 12,
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    ticks: {
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        color: 'rgba(0, 0, 0, 0.05)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Date',
+                                        font: {
+                                            size: 12,
+                                            weight: 'bold'
+                                        }
+                                    },
+                                    ticks: {
+                                        maxRotation: 45,
+                                        minRotation: 45,
+                                        font: {
+                                            size: 11
+                                        }
+                                    },
+                                    grid: {
+                                        display: false
+                                    }
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error rendering chart:', error);
+                    
+                    // Display error on chart
+                    if (priceChart) {
+                        priceChart.destroy();
+                        priceChart = null;
+                    }
+                    
+                    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+                    ctx.font = '14px Poppins';
+                    ctx.textAlign = 'center';
+                    ctx.fillStyle = '#e74c3c';
+                    ctx.fillText('Error rendering chart', ctx.canvas.width / 2, ctx.canvas.height / 2);
+                }
+            }
+            
+            // Set up event listeners for price trends
+            document.getElementById('load-trends').addEventListener('click', loadPriceTrends);
+            
+            const productSelect = document.getElementById('product-select');
+            productSelect && productSelect.addEventListener('change', loadPriceTrends);
+            
+            document.getElementById('time-period').addEventListener('change', loadPriceTrends);
+            
+            // Initial load
+            loadProducts();
+        });
+    </script>
+</body>
+</html>

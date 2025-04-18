@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Agricultural Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard {
+            display: flex;
+            min-height: calc(100vh - 130px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 3px;
+        }
+        
+        .sidebar a:hover {
+            background-color: #444;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+        
+        .welcome-section {
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background-color: #f4f4f4;
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background-color: white;
+            padding: 1rem;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            color: #4CAF50;
+            margin: 0.5rem 0;
+        }
+        
+        .user-list, .price-list {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 2rem;
+        }
+        
+        .user-list th, .user-list td,
+        .price-list th, .price-list td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .user-list th, .price-list th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+        
+        input[type="text"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .action-button {
+            padding: 0.25rem 0.5rem;
+            margin: 0 0.25rem;
+            font-size: 0.875rem;
+        }
+        
+        .delete-button {
+            background-color: #dc3545;
+        }
+        
+        .delete-button:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Agricultural Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="#" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3>Admin Dashboard</h3>
+            <ul>
+                <li><a href="#" class="tab-link" data-tab="overview">Overview</a></li>
+                <li><a href="#" class="tab-link" data-tab="users">Manage Users</a></li>
+                <li><a href="#" class="tab-link" data-tab="prices">Update Prices</a></li>
+                <li><a href="#" class="tab-link" data-tab="trends">Market Trends</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="welcome-section">
+                    <h2>Welcome, <span id="admin-name">Admin</span></h2>
+                    <p>System Overview</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h3>Total Users</h3>
+                        <div class="stat-number" id="total-users">0</div>
+                        <p>Registered Users</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Active Products</h3>
+                        <div class="stat-number" id="total-products">0</div>
+                        <p>Listed Products</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Farmers</h3>
+                        <div class="stat-number" id="total-farmers">0</div>
+                        <p>Registered Farmers</p>
+                    </div>
+                    
+                    <div class="stat-card">
+                        <h3>Traders</h3>
+                        <div class="stat-number" id="total-traders">0</div>
+                        <p>Registered Traders</p>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <h3>Recent Activities</h3>
+                    <ul id="recent-activities">
+                        <li>Loading activities...</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- Users Tab -->
+            <div id="users" class="tab-content">
+                <h2>Manage Users</h2>
+                <table class="user-list">
+                    <thead>
+                        <tr>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Join Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="users-table-body">
+                        <tr>
+                            <td colspan="5">Loading users...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Prices Tab -->
+            <div id="prices" class="tab-content">
+                <h2>Update Product Prices</h2>
+                <div class="card">
+                    <form id="price-update-form">
+                        <div class="form-group">
+                            <label for="product-name">Product Name:</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="market">Market:</label>
+                            <input type="text" id="market" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="price">Price (KES):</label>
+                            <input type="number" id="price" min="0" step="0.01" required>
+                        </div>
+                        
+                        <button type="submit">Update Price</button>
+                    </form>
+                </div>
+                
+                <h3>Current Prices</h3>
+                <table class="price-list">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Market</th>
+                            <th>Price (KES)</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="prices-table-body">
+                        <tr>
+                            <td colspan="5">Loading prices...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- Market Trends Tab -->
+            <div id="trends" class="tab-content">
+                <h2>Market Trends</h2>
+                <div class="card">
+                    <form id="trend-update-form">
+                        <div class="form-group">
+                            <label for="trend-product">Product:</label>
+                            <input type="text" id="trend-product" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trend-description">Trend Description:</label>
+                            <textarea id="trend-description" rows="3" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="trend-type">Trend Type:</label>
+                            <select id="trend-type" required>
+                                <option value="price">Price Trend</option>
+                                <option value="demand">Demand Trend</option>
+                                <option value="supply">Supply Trend</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit">Add Trend</button>
+                    </form>
+                </div>
+                
+                <div class="card">
+                    <h3>Current Trends</h3>
+                    <div id="trends-list">
+                        <p>Loading trends...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Agricultural Management System</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user info
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('admin-name').textContent = user.username || 'Admin';
+            
+            // Tab navigation
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+            
+            // Load system statistics
+            function loadStatistics() {
+                document.getElementById('total-users').textContent = '150';
+                document.getElementById('total-products').textContent = '75';
+                document.getElementById('total-farmers').textContent = '100';
+                document.getElementById('total-traders').textContent = '50';
+                
+                document.getElementById('recent-activities').innerHTML = `
+                    <li>New farmer registration - 2 hours ago</li>
+                    <li>Price update for Tomatoes - 3 hours ago</li>
+                    <li>New product listing - 4 hours ago</li>
+                    <li>Market trend update - 5 hours ago</li>
+                `;
+            }
+            
+            // Load users
+            function loadUsers() {
+                fetch('http://localhost:5000/api/users')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const tbody = document.getElementById('users-table-body');
+                            tbody.innerHTML = '';
+                            
+                            data.users.forEach(user => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${user.username}</td>
+                                    <td>${user.email}</td>
+                                    <td>${user.role}</td>
+                                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="action-button">Edit</button>
+                                        <button class="action-button delete-button">Delete</button>
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        } else {
+                            console.error('Error loading users:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Load prices
+            function loadPrices() {
+                fetch('http://localhost:5000/api/prices')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            const tbody = document.getElementById('prices-table-body');
+                            tbody.innerHTML = '';
+                            
+                            data.prices.forEach(price => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td>${price.product_name}</td>
+                                    <td>${price.market}</td>
+                                    <td>${price.price}</td>
+                                    <td>${new Date(price.date).toLocaleDateString()}</td>
+                                    <td>
+                                        <button class="action-button">Edit</button>
+                                        <button class="action-button delete-button">Delete</button>
+                                    </td>
+                                `;
+                                tbody.appendChild(row);
+                            });
+                        } else {
+                            console.error('Error loading prices:', data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Handle price update form
+            const priceUpdateForm = document.getElementById('price-update-form');
+            if (priceUpdateForm) {
+                priceUpdateForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        product_name: document.getElementById('product-name').value,
+                        market: document.getElementById('market').value,
+                        price: document.getElementById('price').value,
+                        date: new Date().toISOString().split('T')[0],
+                        added_by: user.id
+                    };
+                    
+                    fetch('http://localhost:5000/api/prices', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Price updated successfully!');
+                            priceUpdateForm.reset();
+                            loadPrices();
+                        } else {
+                            alert('Failed to update price: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while updating the price.');
+                    });
+                });
+            }
+            
+            // Handle trend update form
+            const trendUpdateForm = document.getElementById('trend-update-form');
+            if (trendUpdateForm) {
+                trendUpdateForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const formData = {
+                        product: document.getElementById('trend-product').value,
+                        description: document.getElementById('trend-description').value,
+                        type: document.getElementById('trend-type').value,
+                        date: new Date().toISOString().split('T')[0],
+                        added_by: user.id
+                    };
+                    
+                    fetch('http://localhost:5000/api/trends', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Trend added successfully!');
+                            trendUpdateForm.reset();
+                            loadTrends();
+                        } else {
+                            alert('Failed to add trend: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while adding the trend.');
+                    });
+                });
+            }
+            
+            // Load initial data
+            loadStatistics();
+            loadUsers();
+            loadPrices();
+            
+            // Set up auto-refresh
+            setInterval(loadStatistics, 300000);
+            setInterval(loadPrices, 300000);
+        });
+        </script>  
+</body>
+</html>

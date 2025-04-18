@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmer Dashboard - Agricultural Management System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .dashboard {
+            display: flex;
+            min-height: calc(100vh - 130px);
+        }
+        
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 1rem;
+        }
+        
+        .sidebar h3 {
+            margin-bottom: 1.5rem;
+        }
+        
+        .sidebar ul {
+            list-style: none;
+        }
+        
+        .sidebar li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+            display: block;
+            padding: 0.5rem;
+            border-radius: 3px;
+        }
+        
+        .sidebar a:hover {
+            background-color: #444;
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 2rem;
+        }
+        
+        .welcome-section {
+            margin-bottom: 2rem;
+        }
+        
+        .card {
+            background-color: #f4f4f4;
+            padding: 1.5rem;
+            border-radius: 5px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .product-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .product-card h4 {
+            color: #4CAF50;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+        }
+
+        .price-list {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .price-list th, 
+        .price-list td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .price-list th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Agricultural Management System</h1>
+        <nav>
+            <ul>
+                <li><a href="#" id="logout-btn">Logout</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <h3>Farmer Dashboard</h3>
+            <ul>
+                <li><a href="#" class="tab-link" data-tab="dashboard">Dashboard</a></li>
+                <li><a href="#" class="tab-link" data-tab="my-products">My Products</a></li>
+                <li><a href="#" class="tab-link" data-tab="price-trends">Price Trends</a></li>
+            </ul>
+        </div>
+        
+        <div class="main-content">
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="welcome-section">
+                    <h2>Welcome, <span id="farmer-name">Farmer</span></h2>
+                    <p>Here's your farming overview</p>
+                </div>
+                
+                <div class="card">
+                    <h3>Latest Price Trends</h3>
+                    <table class="price-list">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price (KES)</th>
+                                <th>Market</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="latest-prices">
+                            <tr>
+                                <td colspan="4">Loading price data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- My Products Tab -->
+            <div id="my-products" class="tab-content">
+                <h2>My Products</h2>
+                
+                <!-- Add Product Form -->
+                <div class="card">
+                    <h3>Add New Product</h3>
+                    <form id="add-product-form">
+                        <div class="form-group">
+                            <label for="product-name">Product Name:</label>
+                            <input type="text" id="product-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-category">Category:</label>
+                            <select id="product-category" required>
+                                <option value="">Select Category</option>
+                                <option value="Vegetables">Vegetables</option>
+                                <option value="Fruits">Fruits</option>
+                                <option value="Grains">Grains</option>
+                                <option value="Dairy">Dairy</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-description">Description:</label>
+                            <textarea id="product-description" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-quantity">Quantity:</label>
+                            <input type="number" id="product-quantity" min="0" step="0.1" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-unit">Unit:</label>
+                            <select id="product-unit" required>
+                                <option value="">Select Unit</option>
+                                <option value="kg">Kilograms (kg)</option>
+                                <option value="tonnes">Tonnes</option>
+                                <option value="pieces">Pieces</option>
+                                <option value="bags">Bags</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-price">Price per Unit (KES):</label>
+                            <input type="number" id="product-price" min="0" step="0.01" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="product-location">Location:</label>
+                            <input type="text" id="product-location" required>
+                        </div>
+                        
+                        <button type="submit">Add Product</button>
+                    </form>
+                </div>
+
+                <!-- Products List -->
+                <div class="card">
+                    <h3>My Listed Products</h3>
+                    <div id="products-list">
+                        <!-- Products will be loaded here -->
+                        <p>Loading products...</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Price Trends Tab -->
+            <div id="price-trends" class="tab-content">
+                <h2>Price Trends</h2>
+                <table class="price-list">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price (KES)</th>
+                            <th>Market</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody id="all-prices">
+                        <tr>
+                            <td colspan="4">Loading price data...</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Agricultural Management System</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load user info
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            document.getElementById('farmer-name').textContent = user.username || 'Farmer';
+            
+            // Tab navigation
+            const tabLinks = document.querySelectorAll('.tab-link');
+            tabLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const tabId = this.getAttribute('data-tab');
+                    document.querySelectorAll('.tab-content').forEach(tab => {
+                        tab.classList.remove('active');
+                    });
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Logout functionality
+            document.getElementById('logout-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+            });
+
+            // Load farmer's products
+            function loadFarmerProducts() {
+                const user = JSON.parse(localStorage.getItem('user'));
+                if (!user) return;
+
+                fetch(`http://localhost:5000/api/products/farmer/${user.id}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const productsList = document.getElementById('products-list');
+                        if (data.success) {
+                            if (data.products.length === 0) {
+                                productsList.innerHTML = '<p>No products listed yet.</p>';
+                                return;
+                            }
+
+                            productsList.innerHTML = '';
+                            data.products.forEach(product => {
+                                const productCard = document.createElement('div');
+                                productCard.className = 'product-card';
+                                productCard.innerHTML = `
+                                    <h4>${product.name}</h4>
+                                    <p><strong>Category:</strong> ${product.category}</p>
+                                    <p><strong>Quantity:</strong> ${product.quantity} ${product.unit}</p>
+                                    <p><strong>Price:</strong> KES ${product.price} per ${product.unit}</p>
+                                    <p><strong>Location:</strong> ${product.location}</p>
+                                    <p><strong>Description:</strong> ${product.description}</p>
+                                `;
+                                productsList.appendChild(productCard);
+                            });
+                        } else {
+                            productsList.innerHTML = '<p>Error loading products.</p>';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('products-list').innerHTML = 
+                            '<p>Error loading products. Please try again later.</p>';
+                    });
+            }
+
+            // Handle product form submission
+            const addProductForm = document.getElementById('add-product-form');
+            if (addProductForm) {
+                addProductForm.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    const formData = {
+                        name: document.getElementById('product-name').value,
+                        category: document.getElementById('product-category').value,
+                        description: document.getElementById('product-description').value,
+                        quantity: document.getElementById('product-quantity').value,
+                        unit: document.getElementById('product-unit').value,
+                        price: document.getElementById('product-price').value,
+                        location: document.getElementById('product-location').value,
+                        farmer_id: user.id
+                    };
+
+                    fetch('http://localhost:5000/api/products', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Product added successfully!');
+                            addProductForm.reset();
+                            loadFarmerProducts(); // Reload the products list
+                        } else {
+                            alert('Failed to add product: ' + data.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while adding the product.');
+                    });
+                });
+            }
+
+            // Load initial data
+            loadFarmerProducts();
+        });
+    </script>
+</body>
+</html>

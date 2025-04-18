@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Price Trends Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Price Trends Test</h1>
+    
+    <div>
+        <label for="product-select">Select Product:</label>
+        <select id="product-select"></select>
+        <button id="load-btn">Load Data</button>
+    </div>
+    
+    <div style="width: 800px; height: 400px;">
+        <canvas id="chart"></canvas>
+    </div>
+    
+    <div id="data-table"></div>
+    
+    <script>
+        // Load products
+        fetch('/api/simple-trends')
+            .then(response => response.json())
+            .then(data => {
+                console.log('API Response:', data);
+                
+                if (data.success && data.products.length > 0) {
+                    const select = document.getElementById('product-select');
+                    
+                    // Add options
+                    data.products.forEach(product => {
+                        const option = document.createElement('option');
+                        option.value = product;
+                        option.textContent = product;
+                        select.appendChild(option);
+                    });
+                    
+                    // Display first product's data
+                    displayProductData(data.trends, data.products[0]);
+                } else {
+                    alert('No product data available');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error loading data');
+            });
+        
+        // Handle product selection
+        document.getElementById('load-btn').addEventListener('click', function() {
+            const product = document.getElementById('product-select').value;
+            
+            fetch('/api/simple-trends')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        displayProductData(data.trends, product);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+        
+        // Chart reference
+        let myChart = null;
+        
+        // Display product data
+        function displayProductData(trends, productName) {
+            // Filter trends for selected product
+            const productTrends = trends.filter(t => t.product_name === productName);
+            
+            // Display in table
+            const tableDiv = document.getElementById('data-table');
+            
+            if (productTrends.length === 0) {
+                tableDiv.innerHTML = '<p>No data available for this product</p>';
+                return;
+            }
+            
+            let tableHtml = `
+                <h2>${productName} Price Data</h2>
+                <table border="1">
+                    <tr>
+                        <th>Date</th>
+                        <th>Market</th>
+                        <th>Price</th>
+                    </tr>
+            `;
+            
+            productTrends.forEach(trend => {
+                tableHtml += `
+                    <tr>
+                        <td>${trend.date}</td>
+                        <td>${trend.market}</td>
+                        <td>${trend.price}</td>
+                    </tr>
+                `;
+            });
+            
+            tableHtml += '</table>';
+            tableDiv.innerHTML = tableHtml;
+            
+            // Create chart
+            const ctx = document.getElementById('chart').getContext('2d');
+            
+            // Destroy existing chart if it exists
+            if (myChart) {
+                myChart.destroy();
+            }
+            
+            // Create new chart
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: productTrends.map(t => t.date),
+                    datasets: [{
+                        label: productName + ' Price',
+                        data: productTrends.map(t => t.price),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>
